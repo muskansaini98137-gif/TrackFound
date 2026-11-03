@@ -924,21 +924,28 @@ function renderDashboard() {
     if (myClaims.length === 0) {
         claimsSubList.innerHTML = `<div class="text-center text-gray-400 py-6">No claim requests submitted yet</div>`;
     } else {
-        claimsSubList.innerHTML = myClaims.map(c => `
-            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-1">
-                <div class="flex justify-between font-bold">
-                    <span>Item Claim: ${c.itemId}</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] ${c.status === 'Approved' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}">${c.status}</span>
+        claimsSubList.innerHTML = myClaims.map(c => {
+            const item = [...state.lostReports, ...state.foundReports].find(report => report.id === c.itemId);
+            const isFoundResponse = c.requestType === 'found-response' ||
+                String(item && item.type || '').toLowerCase() === 'lost';
+            return `
+                <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-1">
+                    <div class="flex justify-between font-bold">
+                        <span>${isFoundResponse ? 'Found-item message' : 'Ownership claim'}: ${escapeHTML(item && item.title || c.itemId)}</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] ${c.status === 'Approved' ? 'bg-green-100 text-green-800' : c.status === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}">${escapeHTML(c.status || 'Pending')}</span>
+                    </div>
+                    <p class="text-gray-600">Details: ${escapeHTML(c.reason || '')}</p>
                 </div>
-                <p class="text-gray-600">Reason: ${c.reason}</p>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Render Claims Received
     const claimsRecList = document.getElementById('claims-received-list');
-    const myFoundItemIds = state.foundReports.filter(f => f.userId === state.currentUser.id).map(f => f.id);
-    const recClaims = state.claims.filter(c => myFoundItemIds.includes(c.itemId));
+    const myItemIds = [...state.lostReports, ...state.foundReports]
+        .filter(item => item.userId === state.currentUser.id)
+        .map(item => item.id);
+    const recClaims = state.claims.filter(claim => myItemIds.includes(claim.itemId));
 
     if (recClaims.length === 0) {
         claimsRecList.innerHTML = `<div class="text-center text-gray-400 py-6">No claims received for your found items</div>`;
@@ -946,11 +953,12 @@ function renderDashboard() {
         claimsRecList.innerHTML = recClaims.map(c => `
             <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
                 <div class="flex justify-between font-bold">
-                    <span>Claimant: ${c.claimantName}</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] bg-amber-100 text-amber-800">${c.status}</span>
+                    <span>${escapeHTML(c.claimantName || 'Community member')}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] ${c.status === 'Approved' ? 'bg-green-100 text-green-800' : c.status === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}">${escapeHTML(c.status || 'Pending')}</span>
                 </div>
-                <p class="text-gray-600">Proof Answer: "${c.secretAnswer}"</p>
-                <p class="text-gray-500">Reason: ${c.reason}</p>
+                <p class="text-xs font-semibold text-brand-700">${String((state.lostReports.find(item => item.id === c.itemId) || {}).type || '').toLowerCase() === 'lost' ? 'They say they found your lost item.' : 'Ownership claim for your found item.'}</p>
+                <p class="text-gray-600">${String((state.lostReports.find(item => item.id === c.itemId) || {}).type || '').toLowerCase() === 'lost' ? 'Where/how it was found:' : 'Proof answer:'} "${escapeHTML(c.secretAnswer || '')}"</p>
+                <p class="text-gray-500">Details: ${escapeHTML(c.reason || '')}</p>
                 ${c.status === 'Pending' ? `
                     <div class="flex space-x-2 pt-2">
                         <button onclick="updateClaimStatus('${c.id}', 'Approved')" class="bg-green-600 text-white px-3 py-1 rounded-lg font-bold">Approve</button>
@@ -1180,21 +1188,24 @@ function handleClaimSubmit(e) {
     }
 
     const itemId = document.getElementById('claim-item-id').value;
-    const foundItem = state.foundReports.find(item => item.id === itemId && item.status === 'Active');
-    if (!foundItem || foundItem.userId === state.currentUser.id) {
-        showToast("This found item is no longer available for a claim.", "error");
+    const item = [...state.lostReports, ...state.foundReports].find(report =>
+        report.id === itemId && String(report.status || '').toLowerCase() === 'active');
+    if (!item || state.currentUser.id === item.userId) {
+        showToast("This item is no longer available for a request.", "error");
         return;
     }
     if (state.claims.some(claim => claim.itemId === itemId &&
-        claim.claimantId === state.currentUser.id && claim.status === 'Pending')) {
-        showToast("You already have a pending claim for this item.", "info");
+        claim.claimantId === state.currentUser.id && String(claim.status || '').toLowerCase() === 'pending')) {
+        showToast("You already have a pending request for this item.", "info");
         return;
     }
+    const isLostReport = String(item.type || '').toLowerCase() === 'lost';
     const claim = {
         id: 'clm_' + Date.now(),
         itemId: itemId,
         claimantId: state.currentUser.id,
         claimantName: state.currentUser.name,
+        requestType: isLostReport ? 'found-response' : 'ownership-claim',
         reason: redactSensitiveInput(document.getElementById('claim-reason').value.trim()),
         secretAnswer: redactSensitiveInput(document.getElementById('claim-secret-answer').value.trim()),
         status: 'Pending',
@@ -1203,13 +1214,16 @@ function handleClaimSubmit(e) {
 
     state.claims.push(claim);
     closeModal('item-detail-modal');
-    showToast("Ownership claim submitted for review!", "success");
+    showToast(isLostReport
+        ? "Your message that you found this item was sent to its owner."
+        : "Ownership claim submitted for review!", "success");
     renderAllViews();
 }
 
 function updateClaimStatus(claimId, newStatus) {
     const c = state.claims.find(x => x.id === claimId);
-    const item = c && state.foundReports.find(report => report.id === c.itemId);
+    const item = c && [...state.lostReports, ...state.foundReports]
+        .find(report => report.id === c.itemId);
     if (c && item && state.currentUser &&
         (item.userId === state.currentUser.id || state.currentUser.role === 'admin') &&
         ['Approved', 'Rejected'].includes(newStatus)) {
@@ -1519,11 +1533,36 @@ function openItemDetail(id) {
     badge.innerText = item.type;
     badge.className = item.type === 'lost' ? 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-red-600' : 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-brand-600';
 
-    // Show claim section if logged in and not owner
+    // Let logged-in users claim found listings or tell a lost-item owner they found it.
     const claimBlock = document.getElementById('claim-section-block');
-    if (item.type === 'found' && state.currentUser && state.currentUser.id !== item.userId) {
+    const isLostReport = String(item.type || '').toLowerCase() === 'lost';
+    const canRequest = ['lost', 'found'].includes(String(item.type || '').toLowerCase()) &&
+        String(item.status || '').toLowerCase() === 'active' &&
+        state.currentUser && state.currentUser.id !== item.userId;
+    if (canRequest) {
         claimBlock.classList.remove('hidden');
         document.getElementById('claim-item-id').value = item.id;
+        document.getElementById('claim-form-title').innerText = isLostReport
+            ? 'I Have Found This Item'
+            : 'Request This Item';
+        document.getElementById('claim-form-description').innerText = isLostReport
+            ? 'Tell the owner you have their item so they can contact you to verify and arrange its return.'
+            : "Answer the Tracker's ownership prompt to request verification.";
+        document.getElementById('claim-reason-label').innerText = isLostReport
+            ? 'Where and how did you find this item? *'
+            : 'Why do you believe this item is yours? *';
+        document.getElementById('claim-reason').placeholder = isLostReport
+            ? 'Share where you found it and how the owner can arrange to collect it...'
+            : 'Explain where you lost it, contents inside...';
+        document.getElementById('claim-proof-label').innerText = isLostReport
+            ? 'Identifying details about the item *'
+            : 'Proof / Secret Identifying Answer *';
+        document.getElementById('claim-secret-answer').placeholder = isLostReport
+            ? 'Describe a detail that helps the owner confirm it is theirs...'
+            : 'Provide secret detail (e.g., initial engraved, specific keychain)';
+        document.getElementById('claim-submit-button').innerText = isLostReport
+            ? 'Notify Item Owner'
+            : 'Request Item';
     } else {
         claimBlock.classList.add('hidden');
     }
