@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10233f">
+    <meta name="description" content="TrackFound helps communities reconnect lost items with their owners. Lost Something? Track It. Find It. Get It Back.">
+    <title>TrackFound — Lost Something? Track It. Find It. Get It Back.</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            600: '#2563eb',
+                            700: '#173b70',
+                            800: '#122f59',
+                            900: '#0b1f3a',
+                        },
+                        amberAccent: {
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="script.css">
+</head>
+<body class="h-full flex flex-col text-gray-800 bg-gray-50">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div class="site-header-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="site-header-row flex justify-between h-[72px]">
+                <!-- Left: Logo & Nav Links -->
+                <div class="site-header-brand flex items-center gap-1 sm:gap-6 min-w-0">
+                    <button onclick="navTo('home')" class="flex items-center gap-1 sm:gap-2 focus:outline-none whitespace-nowrap">
+                        <div class="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center text-white text-xl font-bold shadow-md">
+                            <i class="fa-solid fa-location-crosshairs"></i>
+                        </div>
+                        <span class="text-xl sm:text-2xl font-black text-brand-700 tracking-tight">Track<span class="text-amberAccent-500">Found</span></span>
+                    </button>
+
+                    <nav class="desktop-primary-nav space-x-1 font-medium text-sm" aria-label="Primary navigation">
+                        <button onclick="navTo('home')" id="nav-home" class="px-3 py-2 rounded-lg text-brand-700 bg-brand-50 font-semibold">Home</button>
+                        <button onclick="navTo('browse')" id="nav-browse" class="px-3 py-2 rounded-lg text-gray-600 hover:text-brand-700 hover:bg-gray-100">Browse Items</button>
+                        <button onclick="navTo('advanced')" id="nav-advanced" class="px-3 py-2 rounded-lg text-gray-600 hover:text-brand-700 hover:bg-gray-100">Advanced Search</button>
+                        <button onclick="navTo('matches')" id="nav-matches" class="px-3 py-2 rounded-lg text-gray-600 hover:text-brand-700 hover:bg-gray-100 relative">
+                            Smart Matches
+                            <span id="matches-badge" class="hidden absolute -top-1 -right-1 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">0</span>
+                        </button>
+                        <button onclick="navTo('how-it-works')" id="nav-how" class="px-3 py-2 rounded-lg text-gray-600 hover:text-brand-700 hover:bg-gray-100">How It Works</button>
+                    </nav>
+                </div>
+
+                <!-- Right: Action Buttons & User Menu -->
+                <div class="site-header-actions flex items-center gap-1 sm:gap-3 shrink-0">
+                    <button id="mobile-nav-toggle" type="button" onclick="toggleMobileNav()" aria-label="Open navigation menu" aria-controls="mobile-nav" aria-expanded="false" class="p-2 rounded-xl text-gray-600 hover:bg-gray-100">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <button onclick="openReportModal('lost')" class="header-report-action items-center space-x-1.5 bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold shadow-sm transition">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <span>Report Lost</span>
+                    </button>
+                    <button onclick="openReportModal('found')" class="header-report-action items-center space-x-1.5 bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-2 rounded-lg text-xs md:text-sm font-semibold shadow-sm transition">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                        <span>Report Found</span>
+                    </button>
+
+                    <!-- Notifications Dropdown -->
+                    <div class="header-notifications relative">
+                        <button type="button" onclick="toggleNotifications()" class="header-icon-button p-2 rounded-lg text-gray-500 hover:text-brand-700 hover:bg-gray-100 relative" aria-label="Notifications">
+                            <i class="fa-regular fa-bell text-lg"></i>
+                            <span id="notif-badge" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white"></span>
+                        </button>
+                        <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                            <div class="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                                <h4 class="font-bold text-sm text-gray-700">Notifications</h4>
+                                <button onclick="clearNotifications()" class="text-xs text-brand-600 hover:underline">Clear all</button>
+                            </div>
+                            <div id="notif-list" class="max-h-64 overflow-y-auto divide-y divide-gray-100 text-xs">
+                                <div class="p-4 text-center text-gray-400">No new notifications</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auth State Controls -->
+                    <div id="auth-buttons-unlogged" class="flex items-center space-x-2">
+                        <button id="auth-login-button" onclick="openAuthModal('login')" class="text-gray-700 hover:text-brand-700 px-1 sm:px-3 py-2 text-xs sm:text-sm font-semibold whitespace-nowrap">Log In</button>
+                        <button onclick="openAuthModal('register')" class="auth-register-button bg-brand-700 hover:bg-brand-800 text-white px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold shadow-sm whitespace-nowrap"><span class="sm:hidden">Join</span><span class="hidden sm:inline">Register</span></button>
+                    </div>
+
+                    <div id="auth-buttons-logged" class="hidden flex items-center space-x-2">
+                        <button onclick="navTo('dashboard')" class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-gray-100">
+                            <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm" id="user-avatar-text">U</div>
+                            <span class="text-sm font-semibold text-gray-700 hidden lg:inline" id="user-name-display">User</span>
+                        </button>
+                        <button onclick="logoutUser()" class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <nav id="mobile-nav" aria-label="Mobile navigation" class="hidden text-sm font-semibold">
+                    <button onclick="navTo('home')" class="mobile-nav-link">Home</button>
+                    <button onclick="navTo('browse')" class="mobile-nav-link">Browse items</button>
+                    <button onclick="navTo('advanced')" class="mobile-nav-link">Advanced search</button>
+                    <button onclick="navTo('matches')" class="mobile-nav-link">Smart matches</button>
+                    <button onclick="navTo('how-it-works')" class="mobile-nav-link">How it works</button>
+                    <button onclick="navTo('dashboard')" class="mobile-nav-link">My dashboard</button>
+                    <button onclick="closeMobileNav(); openReportModal('lost')" class="mobile-nav-link">Report lost</button>
+                    <button onclick="closeMobileNav(); openReportModal('found')" class="mobile-nav-link">Report found</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- NOTIFICATION ALERT BANNER (Floating Toast) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 max-w-md"></div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-grow">
+        
+        <!-- ================= PAGE 1: HOME LANDING PAGE ================= -->
+        <section id="page-home" class="view-page">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-b from-brand-700 via-brand-700 to-brand-800 text-white py-16 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-4xl mx-auto text-center space-y-6">
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 text-blue-100 border border-white/15">
+                        <i class="fa-solid fa-shield-halved mr-1.5 text-blue-300"></i> A simpler way to reunite with what matters
+                    </span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight">Lost Something?<br class="hidden sm:block"> Track It. Find It. Get It Back.</h1>
+                    <p class="text-base sm:text-lg text-blue-100 max-w-2xl mx-auto">
+                        A community-powered lost and found platform to help the right things find their way home.
+                    </p>
+
+                    <!-- Search & Quick Filter Bar -->
+                    <div class="bg-white rounded-2xl p-3 shadow-2xl text-gray-800 max-w-3xl mx-auto border border-gray-100">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                            <div class="relative md:col-span-2">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-gray-400"></i>
+                                <input type="text" id="hero-search-query" placeholder="Search item title, brand, or specs..." 
+                                       class="w-full pl-10 pr-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white">
+                            </div>
+                            <div>
+                                <select id="hero-search-category" class="w-full py-2.5 px-3 bg-gray-50 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600">
+                                    <option value="">All Categories</option>
+                                    <option value="Mobile Phones">Mobile Phones</option>
+                                    <option value="Wallets and Purses">Wallets & Purses</option>
+                                    <option value="Bags and Backpacks">Bags & Backpacks</option>
+                                    <option value="Keys">Keys</option>
+                                    <option value="Identity Documents">Identity Documents</option>
+                                    <option value="Books and Notebooks">Books & Notebooks</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Jewellery">Jewellery</option>
+                                    <option value="Watches">Watches</option>
+                                    <option value="Clothes">Clothes</option>
+                                    <option value="Vehicles and Accessories">Vehicles & Accessories</option>
+                                    <option value="Pets">Pets</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <button onclick="executeHeroSearch()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition shadow-md flex items-center justify-center space-x-2">
+                                <span>Search items</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4 shadow-xl text-gray-800 max-w-3xl mx-auto border border-gray-100 text-left">
+                        <label for="hero-location" class="block text-xs font-bold text-gray-700 mb-2">Discover reports by location</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                            <input id="hero-location" list="recorded-locations" type="search" autocomplete="off" oninput="updateDiscoveryFilter('location', this.value)" placeholder="City, area, station, airport..." class="sm:col-span-2 w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600">
+                            <select id="hero-location-mode" onchange="updateDiscoveryFilter('mode', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-brand-600">
+                                <option value="selected">Selected location / any fields</option>
+                                <option value="city">City / District</option>
+                                <option value="area">Area / Locality</option>
+                                <option value="railway">Railway Station</option>
+                                <option value="bus">Bus Stand</option>
+                                <option value="airport">Airport</option>
+                                <option value="college">College / University</option>
+                                <option value="market">Market / Shopping Mall</option>
+                                <option value="place">Specific Place</option>
+                            </select>
+                            <select id="hero-location-radius" onchange="updateDiscoveryFilter('radius', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-brand-600">
+                                <option value="exact">Exact location</option>
+                                <option value="1">Within 1 km</option>
+                                <option value="5">Within 5 km</option>
+                                <option value="10">Within 10 km</option>
+                                <option value="25">Within 25 km</option>
+                                <option value="50">Within 50 km</option>
+                            </select>
+                        </div>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button onclick="submitLocationSearch('hero')" class="bg-brand-700 hover:bg-brand-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm">Search this location</button>
+                            <button id="hero-near-me" onclick="searchNearMe('hero')" title="Search near my current location" class="border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-2.5 px-4 rounded-xl text-sm"><i class="fa-solid fa-location-crosshairs mr-1"></i> Near Me</button>
+                            <button onclick="navTo('advanced')" class="text-brand-700 font-semibold py-2.5 px-3 text-sm hover:underline">More filters</button>
+                        </div>
+                        <p class="mt-2 text-[11px] text-gray-500">Suggestions come only from locations already recorded in reports. You can also search any location by typing it.</p>
+                    </div>
+
+                    <!-- Quick Action Buttons -->
+                    <div class="pt-4 flex flex-wrap justify-center gap-4">
+                        <button onclick="openReportModal('lost')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>I Lost Something</span>
+                        </button>
+                        <button onclick="openReportModal('found')" class="bg-brand-600 hover:bg-brand-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center space-x-2">
+                            <i class="fa-solid fa-hand-holding-heart"></i>
+                            <span>I Found Something</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Dashboard (Real DB Counts) -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-gray-100 p-6">
+                    <div class="text-center p-3">
+                        <div class="text-3xl font-extrabold text-red-600" id="stat-lost-count">0</div>
+                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">Active Lost Reports</div>
+                    </div>
+                    <div class="text-center p-3">
+                        <div class="text-3xl font-extrabold text-brand-600" id="stat-found-count">0</div>
+                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">Active Found Reports</div>
+                    </div>
+                    <div class="text-center p-3">
+                        <div class="text-3xl font-extrabold text-amberAccent-500" id="stat-matches-count">0</div>
+                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">Smart Matches Detected</div>
+                    </div>
+                    <div class="text-center p-3">
+                        <div class="text-3xl font-extrabold text-green-600" id="stat-returned-count">0</div>
+                        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-1">Successfully Reunited</div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14" aria-labelledby="popular-categories-heading">
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-6">
+                    <div>
+                        <p class="text-xs uppercase tracking-[.18em] text-brand-600 font-bold">Start with a category</p>
+                        <h2 id="popular-categories-heading" class="text-2xl font-bold text-gray-900 mt-1">What are you looking for?</h2>
+                    </div>
+                    <button onclick="navTo('browse')" class="text-brand-600 font-semibold text-sm hover:underline self-start sm:self-auto">Browse everything <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <button onclick="browseCategory('Mobile Phones')" class="category-tile"><i class="fa-solid fa-mobile-screen-button"></i><span>Phones</span></button>
+                    <button onclick="browseCategory('Wallets and Purses')" class="category-tile"><i class="fa-solid fa-wallet"></i><span>Wallets</span></button>
+                    <button onclick="browseCategory('Bags and Backpacks')" class="category-tile"><i class="fa-solid fa-briefcase"></i><span>Bags</span></button>
+                    <button onclick="browseCategory('Keys')" class="category-tile"><i class="fa-solid fa-key"></i><span>Keys</span></button>
+                    <button onclick="browseCategory('Identity Documents')" class="category-tile"><i class="fa-solid fa-id-card"></i><span>Documents</span></button>
+                    <button onclick="browseCategory('Other')" class="category-tile"><i class="fa-solid fa-ellipsis"></i><span>Other items</span></button>
+                </div>
+            </section>
+
+            <!-- Recently Posted Items Section -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-8">
+                    <div>
+                        <p class="text-xs uppercase tracking-[.18em] text-brand-600 font-bold">From the community</p>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1">Recently reported items</h2>
+                        <p class="text-sm text-gray-500 mt-1">Browse the latest local reports.</p>
+                    </div>
+                    <button onclick="navTo('browse')" class="text-brand-600 font-semibold text-sm hover:underline flex items-center space-x-1">
+                        <span>View all listings</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+
+                <div id="recent-items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            </div>
+
+            <!-- How It Works Section -->
+            <div id="how-it-works" class="bg-gray-100 py-16 border-y border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-3xl mx-auto mb-12">
+                        <h2 class="text-3xl font-extrabold text-gray-900">How Trackfound Works</h2>
+                        <p class="text-gray-600 mt-2">A transparent rule-based matching system that protects privacy while recovering lost property.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 relative">
+                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">1</div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Publish Report</h3>
+                            <p class="text-gray-600 text-sm">Post details about what you lost or found. Trackers keep private unique clues to verify real ownership.</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 relative">
+                            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">2</div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Smart Match Score</h3>
+                            <p class="text-gray-600 text-sm">Our automated rule-based algorithm compares title, category, location, date, and color to generate match probability (0–100%).</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 relative">
+                            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">3</div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Safe Verification & Chat</h3>
+                            <p class="text-gray-600 text-sm">Claim items by answering private verification prompts. Chat securely inside Trackfound without revealing phone or email.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Safety Guidelines Banner -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-8">
+                    <div class="flex items-start space-x-4">
+                        <div class="p-3 bg-amber-500 text-white rounded-xl text-2xl">
+                            <i class="fa-solid fa-shield-cat"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-bold text-amber-900">Public Safety & Protection Guidelines</h3>
+                            <ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-amber-900/80 pt-2">
+                                <li class="flex items-center space-x-2">
+                                    <i class="fa-solid fa-check text-amber-600"></i>
+                                    <span><strong>Meet in Public Places:</strong> Always meet at police stations, mall help desks, or railway inquiry counters.</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <i class="fa-solid fa-check text-amber-600"></i>
+                                    <span><strong>Never Pay Upfront Fees:</strong> Legitimate Trackers will never request courier money or reward payments upfront.</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <i class="fa-solid fa-check text-amber-600"></i>
+                                    <span><strong>Redact Sensitive Documents:</strong> Never post unmasked photos of Aadhaar, Passport, or Credit Cards.</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <i class="fa-solid fa-check text-amber-600"></i>
+                                    <span><strong>Verify Ownership Clues:</strong> Ask specific questions about item contents or serial numbers.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: BROWSE ITEMS PAGE ================= -->
+        <section id="page-browse" class="view-page hidden py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div>
+                    <h1 class="text-3xl font-black text-gray-900">Browse Community Directory</h1>
+                    <p class="text-sm text-gray-500">Filter lost and found items by category, location, status, and dates</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="setFilterReportType('all')" id="btn-type-all" class="px-4 py-2 text-xs font-bold rounded-xl border border-gray-300 bg-brand-700 text-white">All Reports</button>
+                    <button onclick="setFilterReportType('lost')" id="btn-type-lost" class="px-4 py-2 text-xs font-bold rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Lost Only</button>
+                    <button onclick="setFilterReportType('found')" id="btn-type-found" class="px-4 py-2 text-xs font-bold rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Found Only</button>
+                </div>
+            </div>
+
+            <!-- Comprehensive Filter Bar -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-8 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Search Keywords</label>
+                        <input type="text" id="filter-keyword" onkeyup="applyBrowseFilters()" placeholder="Title, brand, specs..." class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Category</label>
+                        <select id="filter-category" onchange="applyBrowseFilters()" class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                            <option value="all">All Categories</option>
+                            <option value="Mobile Phones">Mobile Phones</option>
+                            <option value="Wallets and Purses">Wallets & Purses</option>
+                            <option value="Bags and Backpacks">Bags & Backpacks</option>
+                            <option value="Keys">Keys</option>
+                            <option value="Identity Documents">Identity Documents</option>
+                            <option value="Books and Notebooks">Books and Notebooks</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Jewellery">Jewellery</option>
+                            <option value="Watches">Watches</option>
+                            <option value="Clothes">Clothes</option>
+                            <option value="Vehicles and Accessories">Vehicles & Accessories</option>
+                            <option value="Pets">Pets</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">City / Location</label>
+                        <input type="search" id="filter-location" list="recorded-locations" autocomplete="off" oninput="updateDiscoveryFilter('location', this.value)" placeholder="City, area or venue..." class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Status</label>
+                        <select id="filter-status" onchange="applyBrowseFilters()" class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                            <option value="Active">Active Listings Only</option>
+                            <option value="all">All Statuses</option>
+                            <option value="Claim Pending">Claim Pending</option>
+                            <option value="Returned">Returned / Solved</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-gray-100 pt-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Location search mode</label>
+                        <select id="browse-location-mode" onchange="updateDiscoveryFilter('mode', this.value)" class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                            <option value="selected">Selected location / any fields</option><option value="city">City / District</option><option value="area">Area / Locality</option><option value="railway">Railway Station</option><option value="bus">Bus Stand</option><option value="airport">Airport</option><option value="college">College / University</option><option value="market">Market / Shopping Mall</option><option value="place">Specific Place</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Radius</label>
+                        <select id="browse-location-radius" onchange="updateDiscoveryFilter('radius', this.value)" class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                            <option value="exact">Exact location</option><option value="1">Within 1 km</option><option value="5">Within 5 km</option><option value="10">Within 10 km</option><option value="25">Within 25 km</option><option value="50">Within 50 km</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Date from</label>
+                        <input id="browse-date-from" type="date" onchange="updateDiscoveryFilter('dateFrom', this.value)" class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Date to</label>
+                        <input id="browse-date-to" type="date" onchange="updateDiscoveryFilter('dateTo', this.value)" class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Sort results</label>
+                        <select id="browse-sort" onchange="updateDiscoveryFilter('sort', this.value)" class="w-full px-3 py-2 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                            <option value="newest">Newest first</option><option value="nearest">Nearest first</option><option value="match">Highest match score</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2 flex items-end gap-2">
+                        <button id="browse-near-me" onclick="searchNearMe('browse')" title="Search near my current location" class="px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold hover:bg-gray-50"><i class="fa-solid fa-location-crosshairs mr-1"></i> Near Me</button>
+                        <button onclick="resetDiscoveryFilters()" class="px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold hover:bg-gray-50">Reset location filters</button>
+                    </div>
+                </div>
+            </div>
+            <datalist id="recorded-locations"></datalist>
+            <p id="browse-location-status" class="hidden text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-5" role="status"></p>
+            <p id="browse-result-count" class="text-xs font-semibold text-gray-500 mb-4" aria-live="polite"></p>
+
+            <!-- Items Directory Output Grid -->
+            <div id="browse-items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Dynamic cards insertion -->
+            </div>
+        </section>
+
+        <!-- ================= ADVANCED LOCATION SEARCH PAGE ================= -->
+        <section id="page-advanced" class="view-page hidden py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-6">
+                <h1 class="text-3xl font-black text-gray-900">Smart Location Discovery</h1>
+                <p class="mt-1 text-sm text-gray-500">Search real lost and found reports by recorded locations, category, type, date, and distance.</p>
+            </div>
+            <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="sm:col-span-2">
+                        <label for="advanced-location" class="block text-xs font-bold text-gray-700 mb-1">Location in India</label>
+                        <input id="advanced-location" list="recorded-locations" type="search" autocomplete="off" oninput="updateDiscoveryFilter('location', this.value)" placeholder="Enter a city, area, station, airport, college, market..." class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-brand-600">
+                    </div>
+                    <div>
+                        <label for="advanced-location-mode" class="block text-xs font-bold text-gray-700 mb-1">Search mode</label>
+                        <select id="advanced-location-mode" onchange="updateDiscoveryFilter('mode', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                            <option value="selected">Selected location / any fields</option><option value="city">City / District</option><option value="area">Area / Locality</option><option value="railway">Railway Station</option><option value="bus">Bus Stand</option><option value="airport">Airport</option><option value="college">College / University</option><option value="market">Market / Shopping Mall</option><option value="place">Specific Place</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="advanced-location-radius" class="block text-xs font-bold text-gray-700 mb-1">Search radius</label>
+                        <select id="advanced-location-radius" onchange="updateDiscoveryFilter('radius', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                            <option value="exact">Exact location</option><option value="1">Within 1 km</option><option value="5">Within 5 km</option><option value="10">Within 10 km</option><option value="25">Within 25 km</option><option value="50">Within 50 km</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="advanced-type" class="block text-xs font-bold text-gray-700 mb-1">Report type</label>
+                        <select id="advanced-type" onchange="updateDiscoveryFilter('type', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                            <option value="all">All Items</option><option value="lost">Lost Items</option><option value="found">Found Items</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="advanced-category" class="block text-xs font-bold text-gray-700 mb-1">Category</label>
+                        <select id="advanced-category" onchange="updateDiscoveryFilter('category', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                            <option value="all">All Categories</option><option value="Mobile Phones">Mobile Phones</option><option value="Wallets and Purses">Wallets & Purses</option><option value="Bags and Backpacks">Bags & Backpacks</option><option value="Keys">Keys</option><option value="Identity Documents">Identity Documents</option><option value="Books and Notebooks">Books and Notebooks</option><option value="Electronics">Electronics</option><option value="Jewellery">Jewellery</option><option value="Watches">Watches</option><option value="Clothes">Clothes</option><option value="Vehicles and Accessories">Vehicles & Accessories</option><option value="Pets">Pets</option><option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="advanced-status" class="block text-xs font-bold text-gray-700 mb-1">Listing status</label>
+                        <select id="advanced-status" onchange="updateDiscoveryFilter('status', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                            <option value="Active">Active Listings</option><option value="all">All Statuses</option><option value="Claim Pending">Claim Pending</option><option value="Returned">Returned / Solved</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="advanced-keyword" class="block text-xs font-bold text-gray-700 mb-1">Item keywords</label>
+                        <input id="advanced-keyword" type="search" oninput="updateDiscoveryFilter('keyword', this.value)" placeholder="Name, brand or detail" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                    </div>
+                    <div>
+                        <label for="advanced-date-from" class="block text-xs font-bold text-gray-700 mb-1">Date from</label>
+                        <input id="advanced-date-from" type="date" onchange="updateDiscoveryFilter('dateFrom', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                    </div>
+                    <div>
+                        <label for="advanced-date-to" class="block text-xs font-bold text-gray-700 mb-1">Date to</label>
+                        <input id="advanced-date-to" type="date" onchange="updateDiscoveryFilter('dateTo', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                    </div>
+                    <div>
+                        <label for="advanced-sort" class="block text-xs font-bold text-gray-700 mb-1">Sort by</label>
+                        <select id="advanced-sort" onchange="updateDiscoveryFilter('sort', this.value)" class="w-full px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-200 text-sm">
+                            <option value="newest">Newest first</option><option value="nearest">Nearest first</option><option value="match">Highest match score</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2 flex items-end gap-2">
+                        <button onclick="submitLocationSearch('advanced')" class="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white rounded-xl text-sm font-bold">Search reports</button>
+                        <button id="advanced-near-me" onclick="searchNearMe('advanced')" title="Search near my current location" class="px-4 py-2.5 border border-gray-300 hover:bg-gray-50 rounded-xl text-sm font-semibold"><i class="fa-solid fa-location-crosshairs mr-1"></i> Near Me</button>
+                        <button onclick="resetDiscoveryFilters()" class="px-4 py-2.5 border border-gray-300 hover:bg-gray-50 rounded-xl text-sm font-semibold">Reset</button>
+                    </div>
+                </div>
+                <p class="mt-4 text-xs text-gray-500">Suggestions are taken from existing reports. Manual searches work without GPS. Distances are shown only when valid report and search coordinates exist; reports without coordinates remain eligible for matching text searches.</p>
+            </div>
+            <p id="advanced-location-status" class="hidden text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-5" role="status"></p>
+            <div id="advanced-items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- ================= PAGE 3: SMART MATCHING ENGINE PAGE ================= -->
+        <section id="page-matches" class="view-page hidden py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <div class="flex items-center space-x-3">
+                    <div class="p-3 bg-amber-100 text-amber-700 rounded-2xl text-2xl">
+                        <i class="fa-solid fa-diagram-project"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black text-gray-900">Smart Matching Dashboard</h1>
+                        <p class="text-sm text-gray-500">Automated 6-factor rule algorithm identifying high-probability Lost & Found matches</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scoring Info Header -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 mb-8">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Algorithm Scoring Framework (Max 100 Points)</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center text-xs font-semibold">
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div class="text-brand-600 text-base font-bold">25 Pts</div>
+                        <div class="text-gray-500 mt-1">Category Match</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div class="text-brand-600 text-base font-bold">20 Pts</div>
+                        <div class="text-gray-500 mt-1">Title Similarity</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div class="text-brand-600 text-base font-bold">20 Pts</div>
+                        <div class="text-gray-500 mt-1">Location Match</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div class="text-brand-600 text-base font-bold">15 Pts</div>
+                        <div class="text-gray-500 mt-1">Color Match</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div class="text-brand-600 text-base font-bold">10 Pts</div>
+                        <div class="text-gray-500 mt-1">Date Proximity</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <div class="text-brand-600 text-base font-bold">10 Pts</div>
+                        <div class="text-gray-500 mt-1">Keywords Match</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Matches Output -->
+            <div id="matches-list" class="space-y-6">
+                <!-- Matches injected here -->
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: USER DASHBOARD ================= -->
+        <section id="page-dashboard" class="view-page hidden py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div class="flex items-center space-x-4">
+                    <div class="w-14 h-14 rounded-2xl bg-brand-700 text-white font-extrabold text-2xl flex items-center justify-center shadow-md" id="dash-user-avatar">
+                        U
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black text-gray-900">Welcome back, <span id="dash-user-name">there</span></h1>
+                        <p class="text-xs text-gray-500" id="dash-user-email">user@Trackfound.org</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="navTo('admin')" id="admin-portal-btn" class="hidden px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Admin Control Panel</span>
+                    </button>
+                    <button onclick="openModal('profile-settings-modal')" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-50">Account Settings</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] gap-6 lg:gap-8">
+                <aside class="dashboard-sidebar bg-white border border-gray-200 rounded-2xl p-4 h-fit">
+                    <p class="px-3 pb-3 text-[10px] font-bold uppercase tracking-[.16em] text-gray-400">Workspace</p>
+                    <nav class="grid grid-cols-3 lg:grid-cols-1 gap-2" aria-label="Dashboard sections">
+                        <button onclick="switchDashTab('my-reports')" id="dashtab-btn-my-reports" class="dashboard-nav-link is-active"><i class="fa-solid fa-box-open"></i><span>My Reports</span></button>
+                        <button onclick="switchDashTab('my-claims')" id="dashtab-btn-my-claims" class="dashboard-nav-link"><i class="fa-solid fa-shield-halved"></i><span>Claims</span></button>
+                        <button onclick="switchDashTab('messages')" id="dashtab-btn-messages" class="dashboard-nav-link relative"><i class="fa-regular fa-message"></i><span>Messages</span><span id="unread-msg-badge" class="hidden bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold ml-auto">0</span></button>
+                    </nav>
+                    <div class="hidden lg:block mt-6 p-3 rounded-xl bg-blue-50 text-xs text-blue-900">
+                        <i class="fa-solid fa-circle-info mr-1"></i> Your reports are stored in this browser on this device.
+                    </div>
+                </aside>
+
+                <div class="min-w-0">
+                    <div class="dashboard-stats grid grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
+                        <div class="dashboard-stat"><span class="dashboard-stat-icon"><i class="fa-solid fa-layer-group"></i></span><strong id="dash-total-count">0</strong><span>My reports</span></div>
+                        <div class="dashboard-stat"><span class="dashboard-stat-icon is-lost"><i class="fa-solid fa-magnifying-glass"></i></span><strong id="dash-lost-count">0</strong><span>Lost reports</span></div>
+                        <div class="dashboard-stat"><span class="dashboard-stat-icon is-found"><i class="fa-solid fa-hand-holding-heart"></i></span><strong id="dash-found-count">0</strong><span>Found reports</span></div>
+                        <div class="dashboard-stat"><span class="dashboard-stat-icon is-claim"><i class="fa-solid fa-shield-halved"></i></span><strong id="dash-claims-count">0</strong><span>My claims</span></div>
+                    </div>
+
+                    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h2 id="dashboard-panel-title" class="text-xl font-bold text-gray-900">My Reports</h2>
+                            <p class="text-xs text-gray-500 mt-1">Only reports created by this local account are shown.</p>
+                        </div>
+                        <div id="my-reports-filters" class="flex flex-wrap gap-2">
+                            <button onclick="setMyReportsFilter('all')" id="my-report-filter-all" class="filter-chip is-active">All</button>
+                            <button onclick="setMyReportsFilter('lost')" id="my-report-filter-lost" class="filter-chip">Lost</button>
+                            <button onclick="setMyReportsFilter('found')" id="my-report-filter-found" class="filter-chip">Found</button>
+                        </div>
+                    </div>
+
+                    <div id="dashtab-my-reports" class="dashtab-content space-y-6">
+                        <div id="user-reports-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+                        <section class="bg-white rounded-2xl border border-gray-200 p-5">
+                            <h3 class="font-bold text-sm text-gray-900">Recent activity</h3>
+                            <div id="my-recent-activity" class="mt-3 space-y-3 text-xs"></div>
+                        </section>
+                    </div>
+
+                    <div id="dashtab-my-claims" class="dashtab-content hidden space-y-6">
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                            <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                                <h3 class="font-bold text-base text-gray-900 mb-4 flex items-center justify-between"><span>Claims I Have Submitted</span><i class="fa-solid fa-paper-plane text-gray-400"></i></h3>
+                                <div id="claims-submitted-list" class="space-y-4 text-xs"></div>
+                            </div>
+                            <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                                <h3 class="font-bold text-base text-gray-900 mb-4 flex items-center justify-between"><span>Claims Received for My Found Items</span><i class="fa-solid fa-inbox text-gray-400"></i></h3>
+                                <div id="claims-received-list" class="space-y-4 text-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="dashtab-messages" class="dashtab-content hidden">
+                        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-3 min-h-[450px]">
+                            <div class="border-r border-gray-200 p-4 border-b md:border-b-0">
+                                <h3 class="font-bold text-sm text-gray-700 mb-3">Conversations</h3>
+                                <div id="chat-threads-list" class="space-y-2 text-xs"></div>
+                            </div>
+                            <div class="md:col-span-2 flex flex-col justify-between bg-gray-50/50">
+                                <div id="chat-header" class="p-4 border-b border-gray-200 bg-white font-bold text-sm flex justify-between items-center">
+                                    <span class="text-gray-500">Select a conversation to start messaging</span>
+                                </div>
+                                <div id="chat-messages-container" class="p-4 overflow-y-auto space-y-3 flex-grow max-h-[350px]">
+                                    <div class="text-center text-gray-400 text-xs py-12">No active conversation selected</div>
+                                </div>
+                                <div class="p-3 bg-white border-t border-gray-200 flex space-x-2">
+                                    <input type="text" id="chat-input" placeholder="Type a message..." class="flex-grow px-3 py-2 bg-gray-100 rounded-xl text-xs border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-600">
+                                    <button onclick="sendChatMessage()" class="bg-brand-700 hover:bg-brand-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 5: ADMIN PORTAL ================= -->
+        <section id="page-admin" class="view-page hidden py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-purple-900 text-white p-6 rounded-2xl mb-8 flex justify-between items-center shadow-xl">
+                <div>
+                    <span class="bg-purple-700 text-purple-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Super Admin Dashboard</span>
+                    <h1 class="text-3xl font-black mt-2">Platform Operations & Moderation</h1>
+                </div>
+                <div class="text-right">
+                    <button onclick="navTo('dashboard')" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-semibold Founddrop-blur">Exit Admin</button>
+                </div>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Registered Users List -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <h3 class="font-bold text-base text-gray-900 mb-4 flex justify-between">
+                        <span>User Accounts</span>
+                        <span id="admin-user-count" class="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-bold">0</span>
+                    </h3>
+                    <div id="admin-users-list" class="space-y-3 max-h-80 overflow-y-auto text-xs">
+                        <!-- Injected -->
+                    </div>
+                </div>
+
+                <!-- Complaints & Moderation Reports -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm lg:col-span-2">
+                    <h3 class="font-bold text-base text-gray-900 mb-4 flex justify-between">
+                        <span>Flagged Content & Abuse Reports</span>
+                        <span id="admin-flag-count" class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-bold">0</span>
+                    </h3>
+                    <div id="admin-flags-list" class="space-y-3 max-h-80 overflow-y-auto text-xs">
+                        <!-- Injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Listings Moderation Table -->
+            <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+                <h3 class="font-bold text-base text-gray-900 mb-4">All Active Reports Management</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-gray-600">
+                        <thead class="bg-gray-50 uppercase text-[10px] font-bold text-gray-400">
+                            <tr>
+                                <th class="p-3">Type</th>
+                                <th class="p-3">Title</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Reporter</th>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-listings-table" class="divide-y divide-gray-100">
+                            <!-- Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-brand-900 text-brand-100 border-t border-brand-800 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-amberAccent-500 flex items-center justify-center text-white font-bold">
+                        <i class="fa-solid fa-location-crosshairs text-sm"></i>
+                    </div>
+                    <span class="text-xl font-black text-white">Trackfound</span>
+                </div>
+                <p class="text-xs text-brand-100/70 leading-relaxed">
+                    Lost Something? Track It. Find It. Get It Back. A community-first way to help lost items find their way home.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white mb-3">Quick Navigation</h4>
+                <ul class="space-y-2 text-xs text-brand-100/70">
+                    <li><button onclick="navTo('home')" class="hover:text-white">Home Landing</button></li>
+                    <li><button onclick="navTo('browse')" class="hover:text-white">Directory Listings</button></li>
+                    <li><button onclick="navTo('matches')" class="hover:text-white">Smart Match Tracker</button></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white mb-3">Public Venues & Institutions</h4>
+                <ul class="space-y-2 text-xs text-brand-100/70">
+                    <li>Colleges & Universities</li>
+                    <li>Airports & Metro Rail</li>
+                    <li>Shopping Malls & Markets</li>
+                    <li>Public Parks & Transit</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white mb-3">Security & Privacy</h4>
+                <p class="text-xs text-brand-100/70 mb-3">
+                    Personal identity credentials are automatically masked for privacy.
+                </p>
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-brand-800 border border-brand-700 text-xs text-amber-400 font-semibold">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Privacy Guard Active</span>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-brand-800/60 text-center text-xs text-brand-100/50">
+            &copy; TrackFound Community Lost & Found Platform. Local demo data stays in this browser.
+        </div>
+    </footer>
+
+    <!-- ================= MODALS & DRAWERS ================= -->
+
+    <!-- REPORT CREATION MODAL (LOST OR FOUND) -->
+    <div id="report-modal" class="hidden fixed inset-0 z-50 bg-black/60 Founddrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border border-gray-100 overflow-hidden my-8">
+            <div id="report-modal-header" class="p-5 text-white flex justify-between items-center">
+                <div>
+                    <h3 id="report-modal-title" class="text-xl font-bold">Submit Report</h3>
+                    <p class="text-xs opacity-90">Enter item details for community matching</p>
+                </div>
+                <button onclick="closeModal('report-modal')" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+
+            <!-- Privacy Warning Banner -->
+            <div class="bg-amber-50 border-b border-amber-200 p-3 px-6 text-xs text-amber-900 flex items-center space-x-2">
+                <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base flex-shrink-0"></i>
+                <span><strong>Privacy Warning:</strong> Do not publish full unmasked Aadhaar, Passport, or Bank details. Confidential details will be redacted automatically.</span>
+            </div>
+
+            <form id="report-form" onsubmit="handleReportSubmit(event)" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <input type="hidden" id="report-form-type" value="lost">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Item Title *</label>
+                        <input type="text" id="rep-title" required placeholder="e.g. Blue Titan Leather Strap Watch" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Category *</label>
+                        <select id="rep-category" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                            <option value="">Select Category</option>
+                            <option value="Mobile Phones">Mobile Phones</option>
+                            <option value="Wallets and Purses">Wallets & Purses</option>
+                            <option value="Bags and Backpacks">Bags & Backpacks</option>
+                            <option value="Keys">Keys</option>
+                            <option value="Identity Documents">Identity Documents</option>
+                            <option value="Books and Notebooks">Books and Notebooks</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Jewellery">Jewellery</option>
+                            <option value="Watches">Watches</option>
+                            <option value="Clothes">Clothes</option>
+                            <option value="Vehicles and Accessories">Vehicles & Accessories</option>
+                            <option value="Pets">Pets</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Primary Color *</label>
+                        <input type="text" id="rep-color" required placeholder="e.g. Black, Navy Blue, Silver" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Brand / Model (Optional)</label>
+                        <input type="text" id="rep-brand" placeholder="e.g. Samsung, HP, Wildcraft" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1" id="lbl-rep-date">Incident Date *</label>
+                        <input type="date" id="rep-date" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Country *</label>
+                        <input type="text" id="rep-country" required value="India" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">State / Province *</label>
+                        <input type="text" id="rep-state" required placeholder="e.g. Delhi, Maharashtra, Karnataka" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Contact Details *</label>
+                        <input type="text" id="rep-contact" required placeholder="e.g. John Doe, +91 9876543210" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">City / Town *</label>
+                        <input type="text" id="rep-city" required placeholder="e.g. New Delhi, Mumbai, Bengaluru" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Area / Landmark *</label>
+                        <input type="text" id="rep-area" required placeholder="e.g. Connaught Place, Metro Station Platform 2" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                        <p class="mt-1 text-[10px] text-gray-500">Use a neighborhood or public landmark, not a private home address.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">District (Optional)</label>
+                        <input type="text" id="rep-district" placeholder="District" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Locality (Optional)</label>
+                        <input type="text" id="rep-locality" placeholder="Locality or neighborhood" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Public place name (Optional)</label>
+                        <input type="text" id="rep-place-name" placeholder="e.g. railway station, college, market, public venue" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div class="sm:col-span-2 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                        <p class="text-[10px] text-gray-600 mb-2">Optional coordinates for a public place only. Do not enter coordinates for a private residence. These are used for distance calculations and are never shown on report cards.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="text-xs font-bold text-gray-700">Latitude
+                                <input type="number" id="rep-latitude" min="-90" max="90" step="any" placeholder="e.g. 29.3909" class="mt-1 w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs">
+                            </label>
+                            <label class="text-xs font-bold text-gray-700">Longitude
+                                <input type="number" id="rep-longitude" min="-180" max="180" step="any" placeholder="e.g. 76.9635" class="mt-1 w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Public Item Description *</label>
+                        <textarea id="rep-desc" rows="3" required placeholder="Describe visual appearance, scratches, key chains, stickers..." class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none"></textarea>
+                    </div>
+
+                    <div class="sm:col-span-2 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <label class="block text-xs font-bold text-brand-700 mb-1">
+                            <i class="fa-solid fa-lock mr-1"></i>
+                            Private Identifying Detail (NEVER Shown Publicly) *
+                        </label>
+                        <p class="text-[11px] text-gray-500 mb-2">Used as the secret verification answer when validating claimant ownership.</p>
+                        <input type="text" id="rep-private-detail" required placeholder="e.g. Keyring has initial 'R', wallpaper is a dog, secret cash compartment inside" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Item Photo Preview (Optional)</label>
+                        <input type="file" id="rep-file" accept="image/*" onchange="previewImageUpload(this)" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        <div id="image-preview-box" class="hidden mt-3 relative inline-block">
+                            <img id="image-preview-img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-xl border border-gray-200 shadow-sm">
+                            <button type="button" onclick="removeImagePreview()" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow">&times;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('report-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-50">Cancel</button>
+                    <button type="submit" id="report-submit-button" class="px-6 py-2 bg-brand-700 hover:bg-brand-800 text-white rounded-xl text-xs font-bold shadow-md">Publish Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ITEM DETAIL & CLAIM MODAL -->
+    <div id="item-detail-modal" class="hidden fixed inset-0 z-50 bg-black/60 Founddrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full border border-gray-100 overflow-hidden my-8">
+            <div class="p-5 bg-brand-700 text-white flex justify-between items-center">
+                <div>
+                    <span id="det-type-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-red-600">LOST</span>
+                    <h3 id="det-title" class="text-xl font-bold mt-1">Item Details</h3>
+                </div>
+                <button onclick="closeModal('item-detail-modal')" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+
+            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                <div class="flex flex-col sm:flex-row gap-6">
+                    <div id="det-img-container" class="w-full sm:w-1/3 flex-shrink-0">
+                        <img id="det-img" src="https://placehold.co/400x300/1b4332/ffffff?text=No+Photo" alt="Item" class="w-full h-48 object-cover rounded-xl border border-gray-200">
+                    </div>
+                    <div class="space-y-3 flex-grow text-xs">
+                        <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                            <div><span class="text-gray-400 block font-semibold">Category</span> <span id="det-category" class="font-bold text-gray-800">-</span></div>
+                            <div><span class="text-gray-400 block font-semibold">Color</span> <span id="det-color" class="font-bold text-gray-800">-</span></div>
+                            <div><span class="text-gray-400 block font-semibold">Brand</span> <span id="det-brand" class="font-bold text-gray-800">-</span></div>
+                            <div><span class="text-gray-400 block font-semibold">Date</span> <span id="det-date" class="font-bold text-gray-800">-</span></div>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-400 block font-semibold">Location</span>
+                            <span id="det-location" class="font-bold text-gray-800 text-sm">-</span>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-400 block font-semibold">Contact Details</span>
+                            <span id="det-contact" class="font-bold text-gray-800 text-sm break-words">-</span>
+                        </div>
+
+                        <div>
+                            <span class="text-gray-400 block font-semibold">Public Description</span>
+                            <p id="det-desc" class="text-gray-600 mt-1 leading-relaxed bg-white p-3 rounded-xl border border-gray-100 text-xs">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Claim Form Block (Only visible on Found items for logged in non-owner) -->
+                <div id="claim-section-block" class="hidden border-t border-gray-200 pt-6 space-y-4">
+                    <div class="bg-brand-50 p-4 rounded-xl border border-brand-200">
+                        <h4 class="font-bold text-sm text-brand-800 flex items-center space-x-1">
+                            <i class="fa-solid fa-key text-amber-500"></i>
+                            <span>Submit Claim & Ownership Proof</span>
+                        </h4>
+                        <p class="text-xs text-brand-700/80 mt-1">Answer the Tracker's ownership prompt to request verification.</p>
+                    </div>
+
+                    <form onsubmit="handleClaimSubmit(event)" class="space-y-3">
+                        <input type="hidden" id="claim-item-id">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Why do you believe this item is yours? *</label>
+                            <textarea id="claim-reason" required rows="2" placeholder="Explain where you lost it, contents inside..." class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Proof / Secret Identifying Answer *</label>
+                            <input type="text" id="claim-secret-answer" required placeholder="Provide secret detail (e.g., initial engraved, specific keychain)" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                        </div>
+                        <button type="submit" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-2.5 rounded-xl text-xs shadow-md">Submit Ownership Claim</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL (LOGIN / REGISTER) -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-50 bg-black/60 Founddrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-gray-100 overflow-hidden">
+            <div class="p-5 bg-brand-700 text-white flex justify-between items-center">
+                <h3 id="auth-modal-title" class="text-xl font-bold">User Authentication</h3>
+                <button onclick="closeModal('auth-modal')" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+
+            <div class="p-6">
+                <p class="mb-5 text-xs text-gray-500">Sign in to manage your reports and claims.</p>
+                <!-- LOGIN FORM -->
+                <form id="auth-login-form" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="login-email" required autocomplete="email" placeholder="you@example.com" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-xs font-bold text-gray-700 mb-1">Password</label>
+                        <div class="password-control">
+                            <input type="password" id="login-password" required minlength="8" autocomplete="current-password" placeholder="At least 8 characters" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-500">This local demo stores accounts in this browser only. It is not secure authentication and does not sync across devices.</p>
+                    <button type="submit" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-sm shadow-md">Log in</button>
+                    <div class="text-center pt-2">
+                        <button type="button" onclick="switchAuthTab('register')" class="text-xs text-brand-600 font-semibold hover:underline">Need an account? Register here</button>
+                    </div>
+                </form>
+
+                <!-- REGISTER FORM -->
+                <form id="auth-register-form" onsubmit="handleRegisterSubmit(event)" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Full Name *</label>
+                        <input type="text" id="reg-name" required minlength="2" maxlength="80" autocomplete="name" placeholder="Jane Doe" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Email Address *</label>
+                        <input type="email" id="reg-email" required autocomplete="email" placeholder="jane@example.com" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Phone Number *</label>
+                        <input type="tel" id="reg-phone" required autocomplete="tel" placeholder="+91 9876543210" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label for="reg-password" class="block text-xs font-bold text-gray-700 mb-1">Password *</label>
+                        <div class="password-control">
+                            <input type="password" id="reg-password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('reg-password', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="reg-password-confirm" class="block text-xs font-bold text-gray-700 mb-1">Confirm password *</label>
+                        <div class="password-control">
+                            <input type="password" id="reg-password-confirm" required minlength="8" autocomplete="new-password" placeholder="Re-enter your password" class="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('reg-password-confirm', this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-gray-500">Accounts remain on this device; this demo does not provide secure multi-user or cross-device login.</p>
+                    <button type="submit" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-sm shadow-md">Create account</button>
+                    <div class="text-center pt-2">
+                        <button type="button" onclick="switchAuthTab('login')" class="text-xs text-brand-600 font-semibold hover:underline">Already registered? Log in</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE SETTINGS & ROLE SWITCHER MODAL -->
+    <div id="profile-settings-modal" class="hidden fixed inset-0 z-50 bg-black/60 Founddrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-gray-100 overflow-hidden">
+            <div class="p-5 bg-brand-700 text-white flex justify-between items-center">
+                <h3 class="text-xl font-bold">Account Settings</h3>
+                <button onclick="closeModal('profile-settings-modal')" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Role Simulator</label>
+                    <select id="user-role-select" onchange="toggleUserRole(this.value)" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:ring-2 focus:ring-brand-600 focus:outline-none">
+                        <option value="user">Standard Community User</option>
+                        <option value="admin">Super Administrator</option>
+                    </select>
+                </div>
+                <div class="pt-4 flex justify-end">
+                    <button onclick="closeModal('profile-settings-modal')" class="px-4 py-2 bg-brand-700 text-white rounded-xl text-xs font-bold">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SOURCE CODE EXPORT MODAL -->
+    <div id="source-code-modal" class="hidden fixed inset-0 z-50 bg-black/60 Founddrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-gray-100 overflow-hidden my-8">
+            <div class="p-5 bg-gray-900 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold">Complete Foundend Package Source Code</h3>
+                    <p class="text-xs text-gray-400">Python Flask + SQLite Foundend Architecture</p>
+                </div>
+                <button onclick="closeModal('source-code-modal')" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex space-x-2 border-b border-gray-200 pb-2 text-xs font-bold">
+                    <button onclick="showCodeTab('app')" id="codetab-app" class="px-3 py-1.5 bg-brand-700 text-white rounded-lg">app.py</button>
+                    <button onclick="showCodeTab('db')" id="codetab-db" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg">database.py</button>
+                    <button onclick="showCodeTab('req')" id="codetab-req" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg">requirements.txt</button>
+                    <button onclick="showCodeTab('readme')" id="codetab-readme" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg">README.md</button>
+                    <button onclick="showCodeTab('team')" id="codetab-team" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg">TEAM_TASKS.md</button>
+                    <button onclick="showCodeTab('test')" id="codetab-test" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg">TESTING_CHECKLIST.md</button>
+                </div>
+
+                <div class="relative">
+                    <pre id="code-content-display" class="bg-gray-900 text-green-400 p-4 rounded-xl text-xs font-mono max-h-[50vh] overflow-auto custom-scrollbar">
+# Python Flask App Setup
+                    </pre>
+                    <button onclick="copyCodeContent()" class="absolute top-3 right-3 bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-lg text-xs font-semibold Founddrop-blur">
+                        <i class="fa-regular fa-copy mr-1"></i> Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
